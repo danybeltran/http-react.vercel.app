@@ -14,6 +14,7 @@ const config: DocsThemeConfig = {
   useNextSeoProps() {
     return {
       titleTemplate: "%s – HTTP React",
+      description: "React hooks for data fetching",
     }
   },
   footer: {
