@@ -1,11 +1,47 @@
-# Introduction
- 
-Welcome to Nextra! This is a basic docs template. You can use it as a starting point for your own project :)
+<div style={{ textAlign: "center" }}>
+  # HTTP React
+  <span>React hooks for data fetching</span>
+</div>
 
-## What is Nextra?
+Http React is a React hooks library for data fetching. It's built on top of the native `Fetch` API.
 
-A **simple**, **powerful** and **flexible** site generation framework with everything you love from Next.js.
+### Overview
 
-## Documentation
+With one hook call, you get all the information about a request that you can use to build UIs that are consistent and performant:
 
-The documentation is available at [https://nextra.site](https://nextra.site).
+```jsx
+import useFetch from "http-react"
+
+export default function App() {
+  const { data, loading, error, responseTime } = useFetch("/api/user-info", {
+    refresh: 2,
+  })
+
+  if (loading) return <p>Loading</p>
+
+  if (error) return <p>An error ocurred</p>
+
+  return (
+    <div>
+      <h2>Welcome, {data.name}</h2>
+      <small>Profile loaded in {responseTime} miliseconds</small>
+    </div>
+  )
+}
+```
+
+It supports many features that are necessary in modern applications, while giving developers full control over the request configuration:
+
+- Server-Side Rendering
+- React Native
+- Request deduplication
+- Suspense
+- Refresh
+- Retry on error
+- Pagination
+- Local mutation
+- qraphql
+
+and [more](/docs/tutorial-basics/request-config)!
+
+[Getting started](/docs)
