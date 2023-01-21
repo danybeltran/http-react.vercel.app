@@ -9,7 +9,13 @@ const config: DocsThemeConfig = {
   chat: {
     link: "https://discord.com",
   },
-  docsRepositoryBase: "https://github.com/atomic-state/http-react.netlify.app/tree/main",
+  docsRepositoryBase:
+    "https://github.com/atomic-state/http-react.netlify.app/tree/main",
+  useNextSeoProps() {
+    return {
+      titleTemplate: "%s – HTTP React",
+    }
+  },
   footer: {
     text: "Built with Nextra",
   },

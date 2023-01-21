@@ -1,23 +1,64 @@
-# Nextra Docs Template 
+# HTTP React
 
-This is a template for creating documentation with [Nextra](https://nextra.site).
+Http React is a React hooks library for data fetching. It's built on top of the native `Fetch` API.
 
-[**Live Demo →**](https://nextra-docs-template.vercel.app)
 
-[![](.github/screenshot.png)](https://nextra-docs-template.vercel.app)
+### Overview
 
-## Quick Start
+With one hook call, you get all the information about a request that you can use to build UIs that are consistent and performant:
 
-Click the button to clone this repository and deploy it on Vercel:
+```jsx
+import useFetch from "http-react"
 
-[![](https://vercel.com/button)](https://vercel.com/new/clone?s=https%3A%2F%2Fgithub.com%2Fshuding%2Fnextra-docs-template&showOptionalTeamCreation=false)
+export default function App() {
+  const { data, loading, error, responseTime } = useFetch("/api/user-info", {
+    refresh: 2,
+  })
 
-## Local Development
+  if (loading) return <p>Loading</p>
 
-First, run `pnpm i` to install the dependencies.
+  if (error) return <p>An error ocurred</p>
 
-Then, run `pnpm dev` to start the development server and visit localhost:3000.
+  return (
+    <div>
+      <h2>Welcome, {data.name}</h2>
+      <small>Profile loaded in {responseTime} miliseconds</small>
+    </div>
+  )
+}
+```
 
-## License
+It supports many features that are necessary in modern applications, while giving developers full control over the request configuration:
 
-This project is licensed under the MIT License.
+- Server-Side Rendering
+- React Native
+- Request deduplication
+- Suspense
+- Refresh
+- Retry on error
+- Pagination
+- Local mutation
+- qraphql
+
+and [more](https://http-react.netlify.app/docs/api)!
+
+#### Installation:
+
+```bash
+npm install --save http-react
+```
+
+Or
+
+```bash
+yarn add http-react
+```
+
+[Getting started](https://http-react.netlify.app/docs)
+
+
+<p align="center">
+<a href="https://www.npmjs.com/package/http-react" target="_blank"><img src="https://badge.fury.io/js/http-react.svg"></a>
+<img src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+<img src="https://github.com/atomic-state/http-react/actions/workflows/test.yml/badge.svg?event=push" />
+</p>
