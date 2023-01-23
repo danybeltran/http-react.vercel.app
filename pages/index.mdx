@@ -1,4 +1,4 @@
-<div style={{ textAlign: "center" }}>
+<div style={{ textAlign: 'center' }}>
   # HTTP React
   <span>React hooks for data fetching</span>
 </div>
@@ -10,11 +10,11 @@ Http React is a React hooks library for data fetching. It's built on top of the 
 With one hook call, you get all the information about a request that you can use to build UIs that are consistent and performant:
 
 ```jsx
-import useFetch from "http-react"
+import useFetch from 'http-react'
 
 export default function App() {
-  const { data, loading, error, responseTime } = useFetch("/api/user-info", {
-    refresh: 2,
+  const { data, loading, error, responseTime } = useFetch('/api/user-info', {
+    refresh: '30 sec',
   })
 
   if (loading) return <p>Loading</p>
@@ -40,7 +40,8 @@ It supports many features that are necessary in modern applications, while givin
 - Retry on error
 - Pagination
 - Local mutation
-- qraphql
+- Debouncing
+- GraphQL
 
 and [more](/docs/api)!
 

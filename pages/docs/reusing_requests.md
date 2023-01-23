@@ -65,7 +65,7 @@ export default function Page() {
 
 ```
 
-That request will be *deduplicated* (See [Data deduplication](https://en.wikipedia.org/wiki/Data_deduplication)). This means that even though the `useUserInfo` hook is called multiple times, only one request will be sent, and every subscriber using `useUserInfo` will be notified when the state of the request changes.
+The cool thing about it is that even though the `useUserInfo` hook is used multiple times **only one request will be sent** (See [Data deduplication](https://en.wikipedia.org/wiki/Data_deduplication)) and every subscriber using it will be notified when the state of the request changes.
 
 You can also use the `useFetchId` hook that returns everything from a request using its id.
 
@@ -99,7 +99,7 @@ function AccountBalance() {
 }
 
 // This will initialize the request revalidation process,
-// which will be propagated to all of its subscribers
+// which will be propagated to all of its subscribers.
 // (See be below)
 
 function InitializeUserRequest() {
@@ -117,9 +117,9 @@ export default function App() {
 }
 ```
 
-That example can even be reduced if the `useUserInfo` hook would be used only in those components, so it can be removed safely and instead fetch data inside a component:
+That example can even be reduced if `useUserInfo` is used only in those components, so it can be removed safely and instead fetch data directly inside a component:
 
-```jsx
+```jsx {23-29}
 import useFetch, { useFetchId } from 'http-react'
 
 function AccountBalance() {
