@@ -1,0 +1,58 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Query and Params
+
+You can set global params and global URL search params. For example:
+
+```jsx filename="components/profile.jsx"
+export default function Profile() {
+  const { loading, data } = useFetch('/[userId]/profile')
+
+  if (loading) return <p>Loading profile</p>
+
+  return <div>Hello, {data.name}</div>
+}
+```
+
+```jsx filename="components/messages.jsx"
+export default function Messages() {
+  const { loading, data } = useFetch('/[userId]/messages')
+
+  if (loading) return <p>Loading messages</p>
+
+  return <div>{data.length} messages</div>
+}
+```
+
+Inside `App.jsx`:
+
+```jsx filename="App.jsx"
+import { FetchConfig } from 'http-react'
+
+import Profile from 'components/profile'
+import Messages from 'components/messages'
+
+export default function App() {
+  return (
+    <FetchConfig
+      baseUrl='/api'
+      params={{
+        userId: 'some-user-id',
+      }}
+      query={{
+        date: '2023-01-23',
+      }}
+    >
+      <Profile />
+      <Messages />
+    </FetchConfig>
+  )
+}
+```
+
+<Callout type="info">
+Learn more about [`params`](/docs/api#params)
+
+Learn more about [`query`](/docs/api#query)
+
+</Callout>

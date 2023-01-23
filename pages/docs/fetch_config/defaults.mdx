@@ -1,0 +1,85 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Setting default values
+
+If you want to set default values for your requests, pass them in the `defaults` prop:
+
+Before:
+
+```jsx
+import useFetch, { FetchConfig } from 'http-react'
+
+function MyProfile() {
+  const { loading, data } = useFetch('/api/profile')
+
+  if (loading) return <p>Loading profile</p>
+
+  return <div>Hello, {data.name}</div>
+}
+
+function MyMessages() {
+  const { loading, data } = useFetch('/api/messages')
+
+  if (loading) return <p>Loading messages</p>
+
+  return <div>{data.length} messages</div>
+}
+
+export default function App() {
+  return (
+    <div>
+      <MyProfile />
+      <MyMessages />
+    </div>
+  )
+}
+```
+
+After:
+
+```jsx {22-31}
+import useFetch, { FetchConfig } from 'http-react'
+
+function MyProfile() {
+  const { loading, data } = useFetch('/api/profile')
+
+  if (loading) return <p>Loading profile</p>
+
+  return <div>Hello, {data.name}</div>
+}
+
+function MyMessages() {
+  const { loading, data } = useFetch('/api/messages')
+
+  if (loading) return <p>Loading messages</p>
+
+  return <div>{data.length} messages</div>
+}
+
+export default function App() {
+  return (
+    <FetchConfig
+      defaults={{
+        'GET /api/profile': {
+          value: {
+            name: '',
+          },
+        },
+        'GET /messages': {
+          value: [],
+        },
+      }}
+    >
+      <div>
+        <MyProfile />
+        <MyMessages />
+      </div>
+    </FetchConfig>
+  )
+}
+```
+
+<Callout>
+  If a value already exists in [`cacheProvider`](/docs/api#cacheprovider), `FetchConfig` won't set a
+  default value
+</Callout>
