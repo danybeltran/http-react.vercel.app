@@ -1,0 +1,99 @@
+import { Callout } from 'nextra-theme-docs'
+
+# `FetchConfig`
+
+The `FetchConfig` component is used to set global configurations that will be used by `useFetch`, like `SSR`, `default`, an more.
+With this component, you can set configuration for everything that can be sent in a request except for `body`, as this should be sent per request.
+
+Wrap your app with the `FetchConfig` component:
+
+```jsx {1,5,9}
+import { FetchConfig } from 'http-react'
+
+export default function App() {
+  return (
+    <FetchConfig headers={{ Authorization: 'Token etc' }}>
+      <div>
+        <h2>My App</h2>
+      </div>
+    </FetchConfig>
+  )
+}
+```
+
+With the configuration above, every `useFetch` call under that react tree will send the same `Authorization` header. However, this can be changed per request or by using `FetchConfig` somewhere else:
+
+```jsx {10-13,18-21}
+import useFetch, { FetchConfig } from 'http-react'
+
+import LegacyApiComponent from '@components/legacy'
+import NewApiComponent from '@components/new'
+
+export default function App() {
+  return (
+    <div>
+      <FetchConfig
+        baseUrl='/api/v1'
+        headers={{
+          Authorization: 'Old token',
+        }}
+      >
+        <LegacyApiComponent />
+      </FetchConfig>
+      <FetchConfig
+        baseUrl='/api/v2'
+        headers={{
+          Authorization: 'New token',
+        }}
+      >
+        <NewApiComponent />
+      </FetchConfig>
+    </div>
+  )
+}
+```
+
+You can set other configurations. For example, you can use `storage`, provided by `atomic-state` as caching:
+
+```jsx
+import { storage } from 'atomic-state'
+
+export default function App() {
+  return (
+    <div>
+      <FetchConfig
+        baseUrl='/api/v2'
+        headers={{
+          Authorization: 'New token',
+        }}
+        cacheProvider={storage}
+      >
+        <h2>My App</h2>
+      </FetchConfig>
+    </div>
+  )
+}
+```
+
+You can also do thins like send requests again when the window is focused or send requests again only if props changed:
+
+```jsx
+export default function App() {
+  return (
+    <div>
+      <FetchConfig
+        revalidateOnFocus
+        revalidateOnMount={false}
+        attemptInterval={'2 sec'}
+        refresh={'30 sec'} // Revalidate 30 seconds after each request
+      >
+        <h2>My App</h2>
+      </FetchConfig>
+    </div>
+  )
+}
+```
+
+<Callout type='info'>
+  Learn more about [`revalidateOnMount`](/docs/api#revalidateonmount)
+</Callout>

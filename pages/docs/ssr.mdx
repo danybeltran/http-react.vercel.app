@@ -1,0 +1,34 @@
+# SSR
+
+Server-side-rendering is supported out-of-the-box. When you set a [`default`](/docs/api#default) value in `useFetch`, it will also be server-side-rendered.
+
+Example using Next.js's [`getServerSideProps`](https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props):
+
+(`useFetch` can also be used imperatively, like [`Axios`](https://axios-http.com/docs/intro). The `extend` (the equivalent to `axios.create`) property needs to be added :) )
+
+```jsx
+import useFetch, { FetchConfig } from 'http-react'
+
+export default function MyPage({ user }) {
+  const { data } = useFetch('/api/user', {
+    default: user,
+  })
+
+  return (
+    <div>
+      <h2>Welcome, {data.name}</h2>
+    </div>
+  )
+}
+
+export async function getServerSideProps(context) {
+  // 'loading' does not work here
+  const { data, error } = await useFetch.get('/api/user')
+
+  return {
+    props: {
+      user: data,
+    }, // will be passed to the page component as props
+  }
+}
+```

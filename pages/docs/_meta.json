@@ -1,5 +1,10 @@
 {
   "index": "Getting started",
   "reusing_requests": "Reusing requests",
+  "fetch_config": {
+    "title": "Fetch config"
+  },
+  "ssr": "SSR",
+  "graphql": "GraphQL",
   "api": "API"
 }
