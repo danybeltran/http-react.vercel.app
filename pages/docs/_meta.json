@@ -6,5 +6,6 @@
   },
   "ssr": "SSR",
   "graphql": "GraphQL",
+  "all_hooks": "All hooks",
   "api": "API"
 }

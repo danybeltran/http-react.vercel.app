@@ -1,0 +1,522 @@
+import { Callout } from 'nextra-theme-docs'
+
+# All hooks
+
+This is a list of the hooks available in `http-react`
+
+### `useBlob`
+
+Returns a `Blob` of the request
+
+```jsx
+function App() {
+  const { data } = useBlob('/logo.png', { objectURL: true })
+
+  return <img src={data} />
+}
+```
+
+<Callout type="info">
+
+If `objectURL` is not present, `data` will be a `Blob`
+
+</Callout>
+
+### `useCode`
+
+Returns the status code of a request
+
+```jsx
+const statusCode = useCode('id')
+
+return <p>Code: {statusCode}</p>
+```
+
+### `useConfig`
+
+Returns the config of a request
+
+```jsx
+const config = useConfig('id')
+
+return <pre>{JSON.stringify(config, null, 2)}</pre>
+```
+
+<Callout type="info">
+
+If an id is not passed, the configuration of the nearest `FetchConfig` will be returned instead
+
+</Callout>
+
+### `useGET`
+
+The same as `useFetch`, but will always send a `GET` request
+
+<Callout type="info">
+
+There is a hook for each HTTP request method. Learn more about HTTP request methods [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
+
+</Callout>
+
+### `useHEAD`
+
+### `useLINK`
+
+### `useUNLINK`
+
+### `useOPTIONS`
+
+### `usePATCH`
+
+### `usePOST`
+
+### `usePURGE`
+
+### `usePUT`
+
+### `useDELETE`
+
+---
+
+### `useData`
+
+Returns the data of a request
+
+```jsx
+const data = useData('id')
+
+return <p>Name: {data.name}</p>
+```
+
+---
+
+### `useError`
+
+Returns the error state of a request
+
+```jsx
+const error = useError('id')
+
+if (error) return <p>Error</p>
+```
+
+---
+
+### `useFetch`
+
+Sends a request. This is the default export.
+
+<Callout type='info'>
+  You can learn more about the `useFetch` API in the [API section](/docs/api)
+</Callout>
+
+---
+
+### `useFetchId`
+
+Returns everything from a request using its `id`
+
+```jsx
+const { data, loading, error } = useFetchId('id')
+
+if (loading) return <p>Loading</p>
+
+if (error) return <p>Error</p>
+
+return <p>Name: {data.name}</p>
+```
+
+---
+
+### `useGql`
+
+Sends a graphql request
+
+```jsx
+import { gql, useGql } from 'http-react'
+
+const myQuery = gql`
+  query {
+    profile {
+      name
+    }
+  }
+`
+
+function App() {
+  const { data, loading } = useGql(myQuery, {
+    default: {
+      profile: {
+        name: ''
+      }
+    }
+  })
+
+  if (loading) return <p>Loading</p>
+
+  return <p>{data.data.profile.name}</p>
+}
+```
+
+---
+
+### `useImperative`
+
+Returns an object similar to Axios to make HTTP requests imperatively. It includes any configuration passed from the nearest `FetchConfig` parent
+
+```jsx
+import { useImperative } from 'http-react'
+
+function App() {
+  const fetcher = useImperative()
+
+  useEffect(() => {
+    async function getInfo() {
+      const { data, error, config } = fetcher.get('/info')
+      console.log(data)
+    }
+    getInfo()
+  }, [])
+}
+```
+
+---
+
+### `useLoading`
+
+Returns the loading state of a request
+
+```jsx
+const loading = useLoading('id')
+
+if (loading) return <p>Loading</p>
+```
+
+---
+
+### `useMutate`
+
+Returns the function that mutates a request data
+
+```jsx
+const mutateUser = useMutate('user')
+
+const afterMutate = () => revalidate('user')
+
+return (
+  <button
+    onClick={() =>
+      mutateUser(
+        (u) => ({
+          ...u,
+          name: ''
+        }),
+        afterMutate
+      )
+    }
+  >
+    Update
+  </button>
+)
+```
+
+---
+
+### `useRequestEnd`
+
+Returns the Date a request ended
+
+```jsx
+const lastSync = useRequestEnd('id')
+
+if (!lastSync) return <p>Waiting sync...</p>
+
+return <p>Last sync: {lastSync.toLocaleDateString()}
+```
+
+---
+
+### `useRequestStart`
+
+Returns the Date a request started
+
+```jsx
+const startup = useRequestStart('id')
+
+if (!startup) return <p>Request hasn't been sent</p>
+
+return <p>Request started: {startup.toLocaleDateString()}
+```
+
+---
+
+### `useResolve`
+
+Works as an effect that runs when a request completes
+
+```jsx
+useResolve('id', (data) => {
+  console.log('Data sync:', data)
+})
+
+useResolve('another-id', (data) => {
+  console.log('Another data was sync:', data)
+})
+```
+
+---
+
+### `useResponseTime`
+
+Returns the time it took to complete a request
+
+```jsx
+const responseTime = useResponseTime('id')
+
+if (!responseTime) return <p>Loading...</p>
+
+return <p>Loaded in {responseTime} miliseconds</p>
+```
+
+---
+
+### `useText`
+
+Returns the response of a request as text:
+
+```jsx
+const data = useText('id')
+
+return <p>{data}</p>
+```
+
+## Helpers
+
+Useful helper functions. Most of them are used internally but are available as exports
+
+### `hasBaseUrl`
+
+Returns `true` if the string is a url using the `HTTP` or `HTTPS` protocols
+
+```js
+import { hasBaseUrl } from 'http-react'
+
+hasBaseUrl('https://facebook.com') // -> true
+hasBaseUrl('http://localhost:8000') // -> true
+hasBaseUrl('netflix.com') // -> false
+```
+
+---
+
+### `isDefined`
+
+Returns `true` if the input is not `undefined`
+
+```js
+import { isDefined } from 'http-react'
+
+isDefined(null) // -> true
+isDefined('') // -> true
+isDefined() // -> false
+isDefined(undefined) // -> false
+```
+
+---
+
+### `isFunction`
+
+Returns `true` if the input is a function
+
+```js
+import { isFunction } from 'http-react'
+
+isFunction(window.location.reload) // -> true
+isFunction('') // -> false
+isFunction(() => {}) // -> true
+isFunction(function () {}) // -> true
+```
+
+---
+
+### `notNull`
+
+Returns `true` if the input is a not null
+
+```js
+import { notNull } from 'http-react'
+
+notNull({}) // -> true
+notNull('') // -> true
+notNull(0) // -> true
+notNull(null) // -> false
+notNull(document.getElementById('non-existent-element')) // -> false
+```
+
+---
+
+### `revalidate`
+
+Makes `useFetch` requests run again (if they are not loading):
+
+```js
+import useFetch, { revalidate } from 'http-react'
+
+function App() {
+  const { data } = useFetch('/api')
+
+  return (
+    <button
+      onClick={() => {
+        revalidate('GET /api')
+      }}
+    >
+      Revalidate
+    </button>
+  )
+}
+```
+
+You can pass multiple ids:
+
+```js
+import useFetch, { revalidate } from 'http-react'
+
+function App() {
+  useFetch('/api')
+  useFetch('/another')
+  useFetch('/other', {
+    id: {
+      name: 'Other'
+    }
+  })
+
+  return (
+    <button
+      onClick={() => {
+        revalidate([
+          'GET /api',
+          'GET /another',
+
+          // The id that was passed to the third 'useFetch'
+          {
+            name: 'Other'
+          }
+        ])
+      }}
+    >
+      Revalidate
+    </button>
+  )
+}
+```
+
+---
+
+### `serialize`
+
+Returns a JSON version of the input
+
+```js
+import { serialize } from 'http-react'
+
+serialize({ name: 'dany' }) // -> '{"name":"dany"}'
+```
+
+---
+
+### `setURLParams`
+
+Parses url params present in a string
+
+```js
+import { setURLParams } from 'http-react'
+
+setURLParams('api/[path]/:id', { path: 'books', id: 10 }) // -> 'api/books/10'
+```
+
+---
+
+### `isFormData`
+
+Returns `true` if the input is an instance of `FormData`
+
+```js
+import { isFormData } from 'http-react'
+
+isFormData({}) // -> false
+isFormData(new FormData()) // -> true
+```
+
+---
+
+### `defaultCache`
+
+The default cache used by `http-react` to save responses
+
+---
+
+### `mutateData`
+
+A function to modify `useFetch` data that can be used from outside of React. It is very useful for UIs that are optimistic. It accepts the entries of the requests to mutate.
+
+```js
+import { useFetch, mutateData } from 'http-react'
+
+function onlyMutate() {
+  mutateData([
+    'GET /profile',
+    (prev) => ({
+      ...prev,
+      name: 'new name'
+    })
+  ])
+}
+
+function mutateAndRevalidate() {
+  mutateData([
+    'GET /profile',
+    (prev) => ({
+      ...prev,
+      name: 'new name'
+    }),
+    true // this will revalidate after mutation
+  ])
+}
+
+function mutateMany() {
+  mutateData(
+    [
+      'GET /profile',
+      (prev) => ({
+        ...prev,
+        name: 'new name'
+      }),
+      true // this will revalidate after mutation
+    ],
+    [
+      'GET /post',
+      {
+        title: ''
+      },
+      true // this will revalidate after mutation
+    ],
+    [
+      {
+        this_id: 'is_an_object"
+      },
+      {
+        title: 'New title'
+      },
+      true // this will revalidate after mutation
+    ]
+  )
+}
+
+function App() {}
+```
+
+---
+
+### `queryProvider`
+
+For `GraphQL` requests. Learn more in the [GraphQL section](/docs/graphql)
