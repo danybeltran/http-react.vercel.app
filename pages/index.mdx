@@ -14,7 +14,7 @@ import useFetch from 'http-react'
 
 export default function App() {
   const { data, loading, error, responseTime } = useFetch('/api/user-info', {
-    refresh: '30 sec',
+    refresh: '30 sec'
   })
 
   if (loading) return <p>Loading</p>

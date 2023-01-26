@@ -38,6 +38,16 @@ import { Callout } from 'nextra-theme-docs'
 
 By passing additional configuration to `useFetch`, you can configure how data is fetched or decide what to do when certain events happen.
 
+### **Adding tatic typing:**
+
+```tsx
+type ResponseType = {
+  items: []
+}
+
+const { data } = useFetch<ResponseType>({ url: '/api' })
+```
+
 ---
 
 ### `url`
@@ -62,7 +72,7 @@ An optional unique id for the request. It can be anything that can be serialized
 
 ```jsx {2}
 useFetch('/api', {
-  id: 'API',
+  id: 'API'
 })
 ```
 
@@ -81,15 +91,17 @@ The default value that will be returned while the request is completing. If a ca
 const { data } = useFetch('/info', {
   default: {
     name: '',
-    email: '',
-  },
+    email: ''
+  }
 })
 
 return <p>{data.name}</p>
 ```
 
 <Callout type='info'>
-  In this case, the TypeScript type of `data` will be inferred from `default`
+  In this case, the TypeScript type of `data` will be inferred from `default`.
+  However, if a type was specified (see [here](/docs/api#adding-tatic-typing)),
+  this would show an error if the type of `default` doesn't match
 </Callout>
 
 ---
@@ -100,7 +112,7 @@ Override the `baseUrl` defined gloabally (we'll cover that later)
 
 ```jsx {2}
 const { data } = useFetch('/info', {
-  baseUrl: '/api',
+  baseUrl: '/api'
 })
 // The final url will be '/api/info'
 ```
@@ -116,8 +128,8 @@ const { data } = useFetch('/save-work', {
   method: 'POST',
   body: {
     title: 'My title',
-    content: 'My content',
-  },
+    content: 'My content'
+  }
 })
 ```
 
@@ -138,14 +150,14 @@ const { data } = useFetch('/save-work', {
   method: 'PATCH',
   body: {
     title: 'My title',
-    content: 'My content',
+    content: 'My content'
   },
   formatBody(body) {
     return JSON.stringify({
       ...body,
-      title: body.title.toUpperCase(),
+      title: body.title.toUpperCase()
     })
-  },
+  }
 })
 ```
 
@@ -162,9 +174,9 @@ export default function App() {
     auto: false, // Send the request only with a button click
     body: formData,
     headers: {
-      'Content-Type': 'multipart/formdata',
+      'Content-Type': 'multipart/formdata'
     },
-    formatBody: (rawBody) => rawBody, // This will send the body as FormData
+    formatBody: (rawBody) => rawBody // This will send the body as FormData
   })
 
   return (
@@ -185,8 +197,8 @@ URL params (like Express)
 ```jsx {2-4}
 const { data } = useFetch('/todos/[id]', {
   params: {
-    id: 3,
-  },
+    id: 3
+  }
 })
 ```
 
@@ -199,8 +211,8 @@ You can also use `:`
 ```jsx
 const { data } = useFetch('/todos/:id', {
   params: {
-    id: 3,
-  },
+    id: 3
+  }
 })
 ```
 
@@ -210,8 +222,8 @@ Or both
 const { data } = useFetch('/[resource]/:id', {
   params: {
     resource: 'todos',
-    id: 3,
-  },
+    id: 3
+  }
 })
 ```
 
@@ -221,8 +233,8 @@ If a param does not exists, you will get a warning in the console, and it will n
 const { data } = useFetch('/[resource]/:id', {
   methos: 'POST',
   params: {
-    id: 3,
-  },
+    id: 3
+  }
 })
 ```
 
@@ -256,8 +268,8 @@ The request URL search params
 const { data } = useFetch('/search', {
   query: {
     start_date: '2023-01-02',
-    end_date: '2023-01-03',
-  },
+    end_date: '2023-01-03'
+  }
 })
 
 // The url will be '/search?start_date=2023-01-02&end_date=2023-01-03'
@@ -280,9 +292,9 @@ const { data } = useFetch('/items', {
   config: {
     query: {
       // every time page changes, the current request will be cancelled
-      page,
-    },
-  },
+      page
+    }
+  }
 })
 ```
 
@@ -313,7 +325,7 @@ Refresh can be a number (if so, it will be taken as miliseconds) or a string. Yo
 // This will revalidate 5 seconds after the current request completes
 const { data } = useFetch('/api', {
   refresh: '5 sec',
-  default: {},
+  default: {}
 })
 
 return (
@@ -330,7 +342,7 @@ Another example:
 // This would be the same as passing '30 min'
 const { data } = useFetch('/api', {
   refresh: '0.5 h',
-  default: {},
+  default: {}
 })
 ```
 
@@ -344,7 +356,7 @@ The `onResolve` function will once run when the request completes succesfuly
 useFetch('/api', {
   onResolve(data) {
     console.log('Data loaded', data)
-  },
+  }
 })
 ```
 
@@ -402,7 +414,7 @@ The `onError` function will run when the request fails
 useFetch('/api', {
   onError(error) {
     console.log('An error ocurred', error)
-  },
+  }
 })
 ```
 
@@ -432,7 +444,7 @@ The `onOffline` function will run when internet conection is lost
 useFetch('/api', {
   onOffline() {
     alert('You are offline')
-  },
+  }
 })
 ```
 
@@ -446,7 +458,7 @@ The `onOnline` function will run when internet conection is restored
 useFetch('/api', {
   onOnline() {
     alert('Back online')
-  },
+  }
 })
 ```
 
@@ -458,7 +470,7 @@ If `true` (default), a new request will be sent when the conection is restored a
 
 ```jsx {2}
 useFetch('/api', {
-  retryOnReconnect: true,
+  retryOnReconnect: true
 })
 ```
 
@@ -470,7 +482,7 @@ If `true` (default is `false`), a new request will be sent when the window is fo
 
 ```jsx {2}
 useFetch('/api', {
-  revalidateOnFocus: true,
+  revalidateOnFocus: true
 })
 ```
 
@@ -490,7 +502,7 @@ const { data } = useFetch('/api/cat.jpg', {
   async resolver(response) {
     const blob = await response.blob()
     return URL.createObjectURL(blob)
-  },
+  }
 })
 
 return <img src={data} />
@@ -521,7 +533,7 @@ If `auto` is set to false, requests will only be sent by calling the `reFetch` f
 ```jsx {2}
 const { data, reFetch } = useFetch('/api', {
   auto: false,
-  default: {},
+  default: {}
 })
 
 return (
@@ -554,9 +566,9 @@ export default function ExpensiveSearch() {
     auto: search.length > 0, // only if search is not empty
     default: [],
     query: {
-      q: search,
+      q: search
     },
-    debounce: '2 sec', // Wait for 2 seconds, then send a new request
+    debounce: '2 sec' // Wait for 2 seconds, then send a new request
   })
 
   return (
@@ -591,7 +603,7 @@ This tells `useFetch` how many times a request should be sent again if the initi
 ```jsx {2}
 const myResponse = useFetch('/api', {
   attempts: 4,
-  default: {},
+  default: {}
 })
 
 const { data, reFetch, online } = myResponse
@@ -613,7 +625,7 @@ This is the time interval between each attempt after a request fails. By default
 const { data, reFetch, online } = useFetch('/api', {
   attempts: 4,
   attemptInterval: '2 sec',
-  default: {},
+  default: {}
 })
 // If the request fails, retry 4 times with an interval of 2 seconds between each attempt
 
@@ -635,7 +647,7 @@ By default it's `true`. If `false`, the initial data will always be taken from t
 ```jsx {2}
 const myResponse = useFetch('/api', {
   memory: false,
-  default: {},
+  default: {}
 })
 
 const { data, reFetch, online } = myResponse
@@ -671,8 +683,8 @@ This is very useful in certain scenarios. Some examples include:
 const { data, reFetch } = useFetch('/some-expensive-resource', {
   revalidateOnMount: false,
   default: {
-    name: '',
-  },
+    name: ''
+  }
 })
 
 return (
@@ -697,12 +709,12 @@ function WillAlwaysRevalidateOnMount() {
   const { data, reFetch } = useFetch('/some-expensive-resource', {
     revalidateOnMount: false,
     default: {
-      name: '',
+      name: ''
     },
     id: Math.random(),
     query: {
-      page,
-    },
+      page
+    }
   })
 
   return (
@@ -722,7 +734,7 @@ import { atom, useAtom } from 'atomic-state'
 
 const pageState = atom({
   name: 'page',
-  default: 1,
+  default: 1
 })
 
 function WillNotNecesarilyRevalidateOnMount() {
@@ -731,11 +743,11 @@ function WillNotNecesarilyRevalidateOnMount() {
   const { data, reFetch } = useFetch('/some-expensive-resource', {
     revalidateOnMount: false,
     default: {
-      name: '',
+      name: ''
     },
     query: {
-      page,
-    },
+      page
+    }
   })
 
   return (
@@ -769,10 +781,10 @@ function App() {
       console.log('Props changed from', previousProps, 'to', props)
     },
     query: {
-      page,
+      page
     },
     default: [],
-    debounce: 1000,
+    debounce: 1000
   })
 
   return (
@@ -803,9 +815,9 @@ import useFetch from 'http-react'
 function Profile() {
   const { data } = useFetch('/api/v2/profile', {
     headers: {
-      Authorization: 'Token my-token',
+      Authorization: 'Token my-token'
     },
-    suspense: true,
+    suspense: true
   })
 
   return (
@@ -838,9 +850,9 @@ import useFetch, { SSRSuspense } from 'http-react'
 function Profile() {
   const { data } = useFetch('/api/v2/profile', {
     headers: {
-      Authorization: 'Token my-token',
+      Authorization: 'Token my-token'
     },
-    suspense: true,
+    suspense: true
   })
 
   return (
@@ -888,7 +900,7 @@ import { storage } from 'atomic-state'
 export default function App() {
   const { data } = useFetch('/api/user-info', {
     refresh: '20 sec',
-    cacheProvider: storage,
+    cacheProvider: storage
   })
 
   return (

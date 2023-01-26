@@ -1,17 +1,38 @@
+import { Callout } from 'nextra-theme-docs'
+
 # SSR
 
 Server-side-rendering is supported out-of-the-box. When you set a [`default`](/docs/api#default) value in `useFetch`, it will also be server-side-rendered.
 
+`HttpReact` can also be used imperatively like [`Axios`](https://axios-http.com/docs/intro) and has an `extend` property (the equivalent to `axios.create`)
+
 Example using Next.js's [`getServerSideProps`](https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props):
 
-(`useFetch` can also be used imperatively, like [`Axios`](https://axios-http.com/docs/intro). The `extend` (the equivalent to `axios.create`) property needs to be added :) )
-
 ```jsx
-import useFetch, { FetchConfig } from 'http-react'
+import useFetch, { HttpReact } from 'http-react'
+
+// You should use this, it works inside server components
+const Client = HttpReact.extend({
+  baseUrl: 'https://my-api.com',
+  headers: {
+    Authorization: 'Token etc'
+  }
+})
+
+export async function getServerSideProps(context) {
+  // 'loading' does not work here
+  const { data } = await Client.get('/api/user')
+
+  return {
+    props: {
+      user: data
+    } // will be passed to the page component as props
+  }
+}
 
 export default function MyPage({ user }) {
   const { data } = useFetch('/api/user', {
-    default: user,
+    default: user
   })
 
   return (
@@ -20,15 +41,51 @@ export default function MyPage({ user }) {
     </div>
   )
 }
+```
 
-export async function getServerSideProps(context) {
-  // 'loading' does not work here
-  const { data, error } = await useFetch.get('/api/user')
+#### With Server Components in Next.js:
 
-  return {
-    props: {
-      user: data,
-    }, // will be passed to the page component as props
-  }
+If you are using server components in Next.js, you need the use the export of `FetchConfig` available at `http-react/dist/server`. This is just a re-export that has the `'use client'` directive at the top. This is necessary because the `FetchConfig` component uses `React.useContext`, which can't be used directly in server components, which means that you can't directly use `useFetch` too. They can, however, render other client-side components that use any of the React APIs like `useState`, `createContext`, etc.
+
+Inside the main layout
+
+```js filename="app/layout.tsx" {3}
+import { cookies } from 'next/headers'
+import { HttpReact } from 'http-react'
+import { FetchConfig } from 'http-react/dist/server'
+
+import Login from 'components/Login'
+
+const Client = HttpReact.extend({
+  baseUrl: 'https://my-website.com/api'
+})
+
+export default async function Layout({ children }) {
+  // This is only works in server components!
+  const appSession = cookies().get('appSession')?.value
+
+  // This works everywhere
+  const { data, error } = await Client.get('/auth', {
+    headers: {
+      Authorization: 'Token ' + appSession
+    }
+  })
+
+  if (error) return <Login />
+
+  return (
+    <FetchConfig
+      headers={{
+        // Will be sent in subsequent requests
+        Authorization: 'Token ' + appSession
+      }}
+    >
+      {children}
+    </FetchConfig>
+  )
 }
 ```
+
+<Callout type="info">
+Learn more -> [Server and Client Components](https://beta.nextjs.org/docs/rendering/server-and-client-components)
+</Callout>
