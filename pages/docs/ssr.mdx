@@ -45,16 +45,16 @@ export default function MyPage({ user }) {
 
 #### With Server Components in Next.js:
 
-If you are using server components in Next.js, you need the use the export of `FetchConfig` available at `http-react/dist/server`. This is just a re-export that has the `'use client'` directive at the top. This is necessary because the `FetchConfig` component uses `React.useContext`, which can't be used directly in server components, which means that you can't directly use `useFetch` too. They can, however, render other client-side components that use any of the React APIs like `useState`, `createContext`, etc.
+This part covers server-side rendering with Next.js ^13.0.0 (with server components)
 
-Inside the main layout
+Inside the main layout as a server component:
 
-```js filename="app/layout.tsx" {3}
+```js filename="app/layout.tsx" {5}
 import { cookies } from 'next/headers'
-import { HttpReact } from 'http-react'
-import { FetchConfig } from 'http-react/dist/server'
 
 import Login from 'components/Login'
+
+import { FetchConfig, HttpReact } from 'http-react'
 
 const Client = HttpReact.extend({
   baseUrl: 'https://my-website.com/api'
@@ -79,6 +79,11 @@ export default async function Layout({ children }) {
         // Will be sent in subsequent requests
         Authorization: 'Token ' + appSession
       }}
+      defaults={{
+        'GET /api/profile': {
+          value: data // This will be ssr!
+        }
+      }}
     >
       {children}
     </FetchConfig>
@@ -86,6 +91,24 @@ export default async function Layout({ children }) {
 }
 ```
 
-<Callout type="info">
-Learn more -> [Server and Client Components](https://beta.nextjs.org/docs/rendering/server-and-client-components)
+Inside a `pages/profile.tsx`:
+
+```jsx filename="app/profile.tsx"
+'use client' // This marks this component as a client component
+import useFetch from 'http-react'
+
+export default function Profile() {
+  const { data } = useFetch('/api/profile')
+
+  return (
+    <div>
+      <h2>Name: {data.name}</h2>
+    </div>
+  )
+}
+```
+
+<Callout type='info'>
+  Learn more -> [Server and Client
+  Components](https://beta.nextjs.org/docs/rendering/server-and-client-components)
 </Callout>
