@@ -4,15 +4,15 @@ import { Callout } from 'nextra-theme-docs'
 
 Server-side-rendering is supported out-of-the-box. When you set a [`default`](/docs/api#default) value in `useFetch`, it will also be server-side-rendered.
 
-`HttpReact` can also be used imperatively like [`Axios`](https://axios-http.com/docs/intro) and has an `extend` property (the equivalent to `axios.create`)
+Because fetching with `useFetch` doesn't work on the server-side, you can use the `Client` object, which is very similar to [`Axios`](https://axios-http.com/docs/intro) but sends the request using `fetch` instead of an `XMLHttpRequest`. In case you want to re-use it, it has an `extend` property (similar to `axios.create`)
 
 Example using Next.js's [`getServerSideProps`](https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props):
 
-```jsx
-import useFetch, { HttpReact } from 'http-react'
+```jsx filename="pages/my-page.tsx"
+import useFetch, { Client } from 'http-react'
 
-// You should use this, it works inside server components
-const Client = HttpReact.extend({
+// It works inside server and client components
+const api = Client.extend({
   baseUrl: 'https://my-api.com',
   headers: {
     Authorization: 'Token etc'
@@ -21,7 +21,7 @@ const Client = HttpReact.extend({
 
 export async function getServerSideProps(context) {
   // 'loading' does not work here
-  const { data } = await Client.get('/api/user')
+  const { data } = await api.get('/api/user')
 
   return {
     props: {
@@ -45,18 +45,19 @@ export default function MyPage({ user }) {
 
 #### With Server Components in Next.js:
 
-This part covers server-side rendering with Next.js ^13.0.0 (with server components)
+This part covers server-side rendering with Next.js ^13.0.0 (with server components). They work in a differente way from client components. The main difference is that Server components don't ship any JavaScript to the client, thus they are not interactive. This means that things such as `useState` or `createContext` don't work directly inside them. However, they can run server-only code, making them perfect for things like layouts, or user-authentication. Let's look at an example of data fetching in the server using `http-react`
+
 
 Inside the main layout as a server component:
 
 ```js filename="app/layout.tsx" {5}
 import { cookies } from 'next/headers'
 
+import { FetchConfig, Client } from 'http-react'
+
 import Login from 'components/Login'
 
-import { FetchConfig, HttpReact } from 'http-react'
-
-const Client = HttpReact.extend({
+const api = Client.extend({
   baseUrl: 'https://my-website.com/api'
 })
 
@@ -65,7 +66,7 @@ export default async function Layout({ children }) {
   const appSession = cookies().get('appSession')?.value
 
   // This works everywhere
-  const { data, error } = await Client.get('/auth', {
+  const { data, error } = await api.get('/auth', {
     headers: {
       Authorization: 'Token ' + appSession
     }
@@ -81,7 +82,7 @@ export default async function Layout({ children }) {
       }}
       defaults={{
         'GET /api/profile': {
-          value: data // This will be ssr!
+          value: data // This will be SSR!
         }
       }}
     >
@@ -98,7 +99,7 @@ Inside a `pages/profile.tsx`:
 import useFetch from 'http-react'
 
 export default function Profile() {
-  const { data } = useFetch('/api/profile')
+  const { data } = useFetch('/api/profile') // Data will be preloaded here!
 
   return (
     <div>
@@ -110,5 +111,5 @@ export default function Profile() {
 
 <Callout type='info'>
   Learn more -> [Server and Client
-  Components](https://beta.nextjs.org/docs/rendering/server-and-client-components)
+  Components (Next.js)](https://beta.nextjs.org/docs/rendering/server-and-client-components)
 </Callout>

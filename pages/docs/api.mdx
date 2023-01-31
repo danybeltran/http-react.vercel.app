@@ -18,14 +18,18 @@ import { Callout } from 'nextra-theme-docs'
 - `reFetch`: A function to revalidate and send the request again (this won't work if the request hasn't completed yet)
 - `response`: The response object
 - `responseTime`: The time it took to complete the request (in miliseconds)
-- `online`: If a request fails after `n` attempts, this will be set to `false`
-- `mutate`: A function (similar to a state setter) to mutate data localy (optimistic UI)
+- `online`: If the devices was connected or disconected from the internet (web)
+- `mutate`: A function (a state setter) to mutate data localy (optimistic UI)
 - `fetcher`: An object with diferent methods (`get`, `post`, `delete`, etc) that lets you fetch data imperatively using the configuration passed to `useFetch` (similar to `Axios`)
 - `error`: The error state of the request
 - `code`: The response status code
 - `abort`: A function that lets you cancel the request if it hasn't completed yet
-- `requestStart`: A `Date` object of the time the request was sent
-- `requestEnd`: A `Date` object of the time the request finished
+- `requestStart`: A `Date` object of the time the request was sent (`null` if it doesn't exist yet)
+- `requestEnd`: A `Date` object of the time the request finished (`null` if it doesn't exist yet)
+- `expiration`: A `Date` object of the time the last fetched data will expire (by default it returns `null` because `maxCacheAge` default value is `0 ms`)
+- `success`: Will be `true` if the request completed succesfuly and `loading` is `false`
+- `hasData,`: This is `true` If `data` is **not** `null` or `undefined`
+- `loadingFirst`: Will be `true` if the request is being sent for the first time and `loading` is `true`
 
 <Callout>
   If props passed to `useFetch` change while a request is loading, the current
@@ -119,6 +123,37 @@ const { data } = useFetch('/info', {
 
 ---
 
+### `maxCacheAge`
+
+The max time a cached version of the data should be stored in the `cacheProvider`. After this time, the data will be considered as `expired` and a new request will be sent. If data has not expired, no request will be sent. This still works when navigating between components and pages (as long as the page is not reloaded). If `cacheProvider` is based on persistence, reloading the page or restarting the app will not revalidate if the data has not expired.
+
+```jsx {2}
+const { data, expiration } = useFetch('/info', {
+  maxCacheAge: '0.5 h' // Data will be valid for 30 minutes.
+})
+
+return <p>Data will expire at: {expiration?.toLocaleTimeString()}</p>
+```
+
+<Callout>
+  **Note**: If `maxCache` age changes at some point, the cached data will be
+  automatically marked as `expired` and a new request will be sent.
+</Callout>
+---
+
+### `cacheIfError`
+
+If `true`, the last resolved `data` will be returned if a request fails. Otherwhise, the `default` value passed will be returnd. If there is no `default` value, `null` will be returned instead:
+
+```jsx {2}
+const { data } = useFetch('/info', {
+  cacheIfError: false, // Default is 'true'
+  default: {} // This will be returned if the request fails
+})
+```
+
+---
+
 ### `body`
 
 The request body (for requests that use POST, DELETE etc)
@@ -161,7 +196,7 @@ const { data } = useFetch('/save-work', {
 })
 ```
 
-Anpther example, with `FormData`:
+Another example, with `FormData`:
 
 ```jsx {5,9,11,13}
 import useFetch from 'http-react'
@@ -551,7 +586,7 @@ return (
 
 ---
 
-### `debounce`
+### `debounce` (unstable)
 
 With debounce, a request will be debounced by `x` ammount of time after props passed to `useFetch` change.
 
@@ -588,31 +623,35 @@ export default function ExpensiveSearch() {
 }
 ```
 
+<Callout>
+  **Note**: Using `debounce` directly inside `useFetch` is unstable. Use the
+  `useDebounceFetch` hook instead.
+</Callout>
+
 <Callout type='info'>
-  See [Debounce – How to Delay a Function in JavaScript (JS ES6
-  Example)](https://www.freecodecamp.org/news/javascript-debounce-example/) by
-  Ondrej Polesny
+
+See [Debounce – How to Delay a Function in JavaScript (JS ES6
+Example)](https://www.freecodecamp.org/news/javascript-debounce-example/) by
+Ondrej Polesny
+
 </Callout>
 
 ---
 
 ### `attempts`
 
-This tells `useFetch` how many times a request should be sent again if the initial request fails. If all attempts fail, the `online` property returned from `useFetch` will be set to `false`. This number is reset after a request completes succesfuly so it can be reused in subsequent failed requests.
+This tells `useFetch` how many times a request should be sent again if the initial request fails. This number is reset after a request completes succesfuly so it can be reused in subsequent failed requests.
 
 ```jsx {2}
-const myResponse = useFetch('/api', {
+const { data, reFetch } = useFetch('/api', {
   attempts: 4,
   default: {}
 })
-
-const { data, reFetch, online } = myResponse
 
 return (
   <div>
     <button onClick={reFetch}>Refresh data</button>
     <p>{data.name}</p>
-    {online ? <p>Server is up</p> : <p>The server may be down</p>}
   </div>
 )
 ```
@@ -640,7 +679,12 @@ return (
 
 ---
 
-### `memory` (unstable)
+### `memory` (deprecated)
+
+<Callout>
+  For consistency, this feature was deprecated as initial data is returned from
+  cache.
+</Callout>
 
 By default it's `true`. If `false`, the initial data will always be taken from the `default` property and not from `cacheProvider` or in-memory cache.
 
@@ -783,8 +827,7 @@ function App() {
     query: {
       page
     },
-    default: [],
-    debounce: 1000
+    default: []
   })
 
   return (

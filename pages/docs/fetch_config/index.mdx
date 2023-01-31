@@ -56,6 +56,7 @@ export default function App() {
 You can set other configurations. For example, you can use `storage`, provided by `atomic-state` as caching:
 
 ```jsx
+import { FetchConfig } from 'http-react'
 import { storage } from 'atomic-state'
 
 export default function App() {
@@ -78,6 +79,8 @@ export default function App() {
 You can also do thins like send requests again when the window is focused or send requests again only if props changed:
 
 ```jsx
+import { FetchConfig } from 'http-react'
+
 export default function App() {
   return (
     <div>

@@ -2,23 +2,55 @@ import { Callout } from 'nextra-theme-docs'
 
 # Setting default values
 
-If you want to set default values for your requests, pass them in the `defaults` prop:
+You can set the default value of a request by passing it in the `default` prop. This will be returned initially if no data exists:
+
+```tsx
+import useFetch from 'http-react'
+
+export default function Profile() {
+  const { data } = useFetch('/api/profile', {
+    default: {
+      name: 'Loading name...',
+      email: 'Loading email...'
+    }
+  })
+
+  return (
+    <section>
+      <p>Name: {data.name}</p>
+      <p>Email: {data.email}</p>
+    </section>
+  )
+}
+```
+
+If you want to set default values for your requests from the root component of your app, pass them in the `defaults` prop of the `FetchConfig` component:
 
 Before:
 
-```jsx
-import useFetch, { FetchConfig } from 'http-react'
+```tsx
+import useFetch from 'http-react'
 
-function MyProfile() {
-  const { loading, data } = useFetch('/api/profile')
+export default function Profile() {
+  const { data } = useFetch('/api/profile', {
+    default: {
+      name: 'Loading name...',
+      email: 'Loading email...'
+    }
+  })
 
-  if (loading) return <p>Loading profile</p>
-
-  return <div>Hello, {data.name}</div>
+  return (
+    <section>
+      <p>Name: {data.name}</p>
+      <p>Email: {data.email}</p>
+    </section>
+  )
 }
 
 function MyMessages() {
-  const { loading, data } = useFetch('/api/messages')
+  const { loading, data } = useFetch('/api/messages', {
+    default: []
+  })
 
   if (loading) return <p>Loading messages</p>
 
@@ -37,15 +69,18 @@ export default function App() {
 
 After:
 
-```jsx {22-31}
+```tsx {25-35}
 import useFetch, { FetchConfig } from 'http-react'
 
-function MyProfile() {
-  const { loading, data } = useFetch('/api/profile')
+export default function Profile() {
+  const { data } = useFetch('/api/profile')
 
-  if (loading) return <p>Loading profile</p>
-
-  return <div>Hello, {data.name}</div>
+  return (
+    <section>
+      <p>Name: {data.name}</p>
+      <p>Email: {data.email}</p>
+    </section>
+  )
 }
 
 function MyMessages() {
@@ -62,7 +97,8 @@ export default function App() {
       defaults={{
         'GET /api/profile': {
           value: {
-            name: ''
+            name: '',
+            email: ''
           }
         },
         'GET /messages': {
