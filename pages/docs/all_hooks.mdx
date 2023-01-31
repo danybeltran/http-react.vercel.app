@@ -290,6 +290,47 @@ const data = useText('id')
 return <p>{data}</p>
 ```
 
+---
+
+### `useExpiration`
+
+Returns the `expiration` date of a request:
+
+```jsx
+const expiration = useExpiration('id')
+
+return <p>Expires: {expiration?.toLocaleTimeString()}</p>
+```
+
+---
+
+### `useHasData`
+
+Returns the `hasData` value of a request
+
+```jsx
+const hasData = useHasData('id')
+
+return <p>{hasData ? 'Data exists' : 'There is no data...'}</p>
+```
+
+---
+
+### `useDebounceFetch`
+
+Makes a request with debouncing.
+
+```jsx
+const [q, setQ] = useState('')
+const { data: results } = useDebounceFetch('/search', {
+  auto: q,
+  query: {
+    q
+  },
+  debounce: '2 sec' // Wait 2 seconds after props change to send a new request
+})
+```
+
 ## Helpers
 
 Useful helper functions. Most of them are used internally but are available as exports
@@ -384,6 +425,7 @@ import useFetch, { revalidate } from 'http-react'
 function App() {
   useFetch('/api')
   useFetch('/another')
+
   useFetch('/other', {
     id: {
       name: 'Other'
@@ -419,7 +461,7 @@ Returns a JSON version of the input
 ```js
 import { serialize } from 'http-react'
 
-serialize({ name: 'dany' }) // -> '{"name":"dany"}'
+serialize({ name: 'dany' }, null, 2) // -> '{"name":"dany"}'
 ```
 
 ---
@@ -432,6 +474,10 @@ Parses url params present in a string
 import { setURLParams } from 'http-react'
 
 setURLParams('api/[path]/:id', { path: 'books', id: 10 }) // -> 'api/books/10'
+
+setURLParams('https://api/[id]?photo=some-photo.png', {
+  id: 24
+}) // -> 'https://api/24?photo=some-photo.png'
 ```
 
 ---
@@ -451,7 +497,7 @@ isFormData(new FormData()) // -> true
 
 ### `defaultCache`
 
-The default cache used by `http-react` to save responses
+The default cache used by `http-react` to save data
 
 ---
 

@@ -4,7 +4,7 @@ import { Callout } from 'nextra-theme-docs'
 
 You can set global params and global URL search params. For example:
 
-```jsx filename="components/profile.jsx"
+```tsx filename="components/profile.jsx"
 export default function Profile() {
   const { loading, data } = useFetch('/[userId]/profile')
 
@@ -14,7 +14,7 @@ export default function Profile() {
 }
 ```
 
-```jsx filename="components/messages.jsx"
+```tsx filename="components/messages.jsx"
 export default function Messages() {
   const { loading, data } = useFetch('/[userId]/messages')
 
@@ -24,9 +24,9 @@ export default function Messages() {
 }
 ```
 
-Inside `App.jsx`:
+Inside `App.tsx`:
 
-```jsx filename="App.jsx"
+```tsx filename="src/App.tsx" {10-15}
 import { FetchConfig } from 'http-react'
 
 import Profile from 'components/profile'
