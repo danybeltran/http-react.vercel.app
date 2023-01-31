@@ -37,7 +37,7 @@ It supports many features that are necessary in modern applications, while givin
 - Refresh
 - Retry on error
 - Pagination
-- Local mutation
+- Local mutation (Optimistic UI)
 - qraphql
 
 and [more](https://http-react.netlify.app/docs/api)!
