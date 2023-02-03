@@ -47,44 +47,42 @@ export default function MyPage({ user }) {
 
 This part covers server-side rendering with Next.js ^13.0.0 (with server components). They work in a differente way from client components. The main difference is that Server components don't ship any JavaScript to the client, thus they are not interactive. This means that things such as `useState` or `createContext` don't work directly inside them. However, they can run server-only code, making them perfect for things like layouts, or user-authentication. Let's look at an example of data fetching in the server using `http-react`
 
-
 Inside the main layout as a server component:
 
-```js filename="app/layout.tsx" {5}
+```js filename="app/layout.tsx"
 import { cookies } from 'next/headers'
 
 import { FetchConfig, Client } from 'http-react'
 
 import Login from 'components/Login'
 
-const api = Client.extend({
-  baseUrl: 'https://my-website.com/api'
-})
-
 export default async function Layout({ children }) {
   // This is only works in server components!
   const appSession = cookies().get('appSession')?.value
 
-  // This works everywhere
-  const { data, error } = await api.get('/auth', {
+  // Creating a client
+  // (we can't pass a fetcher function because functions can't be serialized!)
+  const api = Client.extend({
+    baseUrl: 'https://my-website.com/api',
     headers: {
       Authorization: 'Token ' + appSession
+    },
+    defaults: {
+      'GET /api/profile': {
+        value: data // This will be SSR!
+      }
     }
   })
+
+  // This works everywhere
+  const { data, error } = await api.get('/auth')
 
   if (error) return <Login />
 
   return (
     <FetchConfig
-      headers={{
-        // Will be sent in subsequent requests
-        Authorization: 'Token ' + appSession
-      }}
-      defaults={{
-        'GET /api/profile': {
-          value: data // This will be SSR!
-        }
-      }}
+      // Passing the configuration to children components
+      {...api.config}
     >
       {children}
     </FetchConfig>
@@ -92,7 +90,7 @@ export default async function Layout({ children }) {
 }
 ```
 
-Inside a `pages/profile.tsx`:
+Inside `pages/profile.tsx`:
 
 ```jsx filename="app/profile.tsx"
 'use client' // This marks this component as a client component
@@ -110,6 +108,6 @@ export default function Profile() {
 ```
 
 <Callout type='info'>
-  Learn more -> [Server and Client
-  Components (Next.js)](https://beta.nextjs.org/docs/rendering/server-and-client-components)
+  Learn more -> [Server and Client Components
+  (Next.js)](https://beta.nextjs.org/docs/rendering/server-and-client-components)
 </Callout>
