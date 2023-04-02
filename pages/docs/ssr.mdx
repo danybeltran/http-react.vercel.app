@@ -60,18 +60,16 @@ export default async function Layout({ children }) {
   // This is only works in server components!
   const appSession = cookies().get('appSession')?.value
 
+  const baseUrl = 'https://my-website.com/api'
+  const headers = {
+    Authorization: 'Token ' + appSession
+  }
+
   // Creating a client
   // (we can't pass a fetcher function because functions can't be serialized!)
   const api = Client.extend({
-    baseUrl: 'https://my-website.com/api',
-    headers: {
-      Authorization: 'Token ' + appSession
-    },
-    defaults: {
-      'GET /api/profile': {
-        value: data // This will be SSR!
-      }
-    }
+    baseUrl,
+    headers
   })
 
   // This works everywhere
@@ -81,8 +79,13 @@ export default async function Layout({ children }) {
 
   return (
     <FetchConfig
-      // Passing the configuration to children components
-      {...api.config}
+      baseUrl={baseUrl}
+      headers={headers}
+      defaults={{
+        'GET /api/profile': {
+          value: data // This will be SSR!
+        }
+      }}
     >
       {children}
     </FetchConfig>

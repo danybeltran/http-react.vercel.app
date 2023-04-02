@@ -42,7 +42,7 @@ import { Callout } from 'nextra-theme-docs'
 
 By passing additional configuration to `useFetch`, you can configure how data is fetched or decide what to do when certain events happen.
 
-### **Adding tatic typing:**
+### **Adding static typing:**
 
 ```tsx
 type ResponseType = {
@@ -104,7 +104,7 @@ return <p>{data.name}</p>
 
 <Callout type='info'>
   In this case, the TypeScript type of `data` will be inferred from `default`.
-  However, if a type was specified (see [here](/docs/api#adding-tatic-typing)),
+  However, if a type was specified (see [here](/docs/api#adding-static-typing)),
   this would show an error if the type of `default` doesn't match
 </Callout>
 
@@ -199,14 +199,14 @@ const { data } = useFetch('/save-work', {
 Another example, with `FormData`:
 
 ```jsx {5,9,11,13}
-import useFetch from 'http-react'
+import { usePOST, revalidate } from 'http-react'
 import { useState } from 'react'
 
 export default function App() {
   const [formData, setFormData] = useState(new FormData())
 
-  const { data, reFetch } = useFetch('/api/user-info', {
-    auto: false, // Send the request only with a button click
+  const { data, id } = usePOST('/api/user-info', {
+    auto: false, // Send the request only when the button is clicked
     body: formData,
     headers: {
       'Content-Type': 'multipart/formdata'
@@ -216,7 +216,7 @@ export default function App() {
 
   return (
     <div>
-      <button onClick={reFetch}>Save image</button>
+      <button onClick={() => revalidate(id)}>Save image</button>
       {data && <img src={data.url} alt={data.description} />}
     </div>
   )
@@ -625,7 +625,7 @@ export default function ExpensiveSearch() {
 
 <Callout>
   **Note**: Using `debounce` directly inside `useFetch` is unstable. Use the
-  `useDebounceFetch` hook instead.
+  [`useDebounceFetch`](/docs/all_hooks#usedebouncefetch) hook instead.
 </Callout>
 
 <Callout type='info'>
