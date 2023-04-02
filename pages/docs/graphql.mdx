@@ -137,7 +137,7 @@ export default function Users() {
 
 ## `queryProvider`
 
-This is a function that returns a custom React hook and has full TypeScript support
+This is a function that returns a custom React hook that has static typing
 
 ### Creating a client
 
@@ -157,7 +157,7 @@ type UserVariables = {
 
 // The first type argument is used for `data` and the second one for `variables`
 const user = gql<UserType, UserVariables>`
-  {
+  query {
     user {
       name
     }
@@ -165,7 +165,7 @@ const user = gql<UserType, UserVariables>`
 `
 // static type of 'data' and 'variables' will be 'any'
 const tasks = gql`
-  query tasks {
+  query {
     tasks {
       completed
     }
@@ -247,11 +247,8 @@ useQuery('$user') // Will show an error
 ```
 
 <Callout>
-  The code above will show the following error: 
-  
-  ```txt
-  Argument of type '"$user"' is not assignable to parameter of type '"tasks" | "user"'
-  ```
+  The code above will show the following error: ```txt Argument of type
+  '"$user"' is not assignable to parameter of type '"tasks" | "user"' ```
 </Callout>
 
 ### `useData`
