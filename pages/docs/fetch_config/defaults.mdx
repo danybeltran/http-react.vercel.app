@@ -1,8 +1,8 @@
 import { Callout } from 'nextra-theme-docs'
 
-# Setting default values
+# Fallback data
 
-You can set the default value of a request by passing it in the `default` prop. This will be returned initially if no data exists:
+You can set the fallback value of a request by passing it in the `default` prop. This will be used as the initial data:
 
 ```tsx
 import useFetch from 'http-react'
@@ -24,52 +24,9 @@ export default function Profile() {
 }
 ```
 
-If you want to set default values for your requests from the root component of your app, pass them in the `defaults` prop of the `FetchConfig` component:
+If you want to set fallback values from the root component of your app, pass them in the `value` prop of the `FetchConfig` component:
 
-Before:
-
-```tsx
-import useFetch from 'http-react'
-
-export default function Profile() {
-  const { data } = useFetch('/api/profile', {
-    default: {
-      name: 'Loading name...',
-      email: 'Loading email...'
-    }
-  })
-
-  return (
-    <section>
-      <p>Name: {data.name}</p>
-      <p>Email: {data.email}</p>
-    </section>
-  )
-}
-
-function MyMessages() {
-  const { loading, data } = useFetch('/api/messages', {
-    default: []
-  })
-
-  if (loading) return <p>Loading messages</p>
-
-  return <div>{data.length} messages</div>
-}
-
-export default function App() {
-  return (
-    <div>
-      <MyProfile />
-      <MyMessages />
-    </div>
-  )
-}
-```
-
-After:
-
-```tsx {25-35}
+```tsx {25-31}
 import useFetch, { FetchConfig } from 'http-react'
 
 export default function Profile() {
@@ -94,16 +51,12 @@ function MyMessages() {
 export default function App() {
   return (
     <FetchConfig
-      defaults={{
+      value={{
         'GET /api/profile': {
-          value: {
-            name: '',
-            email: ''
-          }
+          name: '',
+          email: ''
         },
-        'GET /messages': {
-          value: []
-        }
+        'GET /messages': []
       }}
     >
       <div>
@@ -115,7 +68,44 @@ export default function App() {
 }
 ```
 
-<Callout>
-  If a value already exists in [`cacheProvider`](/docs/api#cacheprovider),
-  `FetchConfig` won't set a default value
-</Callout>
+If you are using server components you can pass promises as fallback values (keep in mind that this works **only** in server components):
+
+```jsx
+import { FetchConfig } from 'http-react'
+
+function getTodos() {
+  return fetch('https://api.com/todos').then((res) => res.json())
+}
+
+export function MyServerComponent({ children }) {
+  return (
+    <FetchConfig
+      value={{
+        todos: getTodos() // No await needed!
+      }}
+    >
+      <div>{children}</div>
+    </FetchConfig>
+  )
+}
+```
+
+Then in your client component:
+
+```tsx
+'use client'
+
+import useFetch from 'http-react'
+
+export default function Todos() {
+  const { data } = useFetch('/todos', {
+    id: 'todos' // This will replace 'GET /todos' for 'todos' as the request id
+  })
+
+  return (
+    <div>
+      <h2>Total todos: {data.length}</h2>
+    </div>
+  )
+}
+```

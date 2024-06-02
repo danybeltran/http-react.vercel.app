@@ -1,0 +1,250 @@
+# Server actions
+
+**(From the Next.js website)**: Server Actions are **asynchronous functions** that are executed on the server. They can be used in Server and Client Components to handle form submissions and data mutations in Next.js applications.
+
+There are two hooks you can use to execute server actions with `http-react`: `useAction` and `useMutation`. The only difference is that `useMutation` **has to be triggered manually**
+
+Server actions that will be used with `useAction` or `useMutation` need to return a `data` property. You can also return `status` and `error`. This makes server actions results **more predictable** and friendly with how `useFetch` handles the data. `http-react` provides the `actionData` helper function.
+
+```ts filename="actions.ts"
+'use server'
+
+export async function getProfile() {
+  const profileData = {
+    email: 'dany@email.com',
+    name: 'Dany'
+  }
+
+  return actionData(profileData) // This includes `data`, `error` and `status`
+}
+```
+
+#### Using a server action
+
+Now you can use that server action inside a client component:
+
+```tsx filename="profile.tsx"
+'use client'
+
+import { useAction } from 'http-react'
+
+import { getProfile } from '@/actions'
+
+export default function Profile() {
+  // the type of `data` is inferred from the server action
+  const { data, isPending, error } = useAction(getProfile)
+
+  if (isPending) return <p>Loading profile...</p>
+
+  if (error) return <p>Failed to load profile</p>
+
+  return (
+    <div>
+      <h2>Name: {profile.name}</h2>
+      <h2>Email: {profile.email}</h2>
+    </div>
+  )
+}
+```
+
+### Server mutations
+
+To use a server action to mutate data, use the `useMutation` hook. The type of the server action param will be inferred and can be passed in `params`. In this example, we use `$form` to get the incoming data as an object:
+
+```ts filename="actions.ts"
+'use server'
+
+import { actionData, $form } from 'http-react'
+
+import db from './db'
+
+type Entry = {
+  title: string
+  description: string
+}
+
+export async function createEntry(data: FormData) {
+  const entry = $form<Entry>(data)
+
+  const { title, description } = entry
+
+  const newEntry = await db.create({ title, description })
+
+  return actionData(newEntry)
+}
+```
+
+Using the `useMutation` hook:
+
+```tsx filename="entry-form.tsx"
+'use client'
+
+import { useMutation } from 'http-react'
+
+import { createEntry } from '@/actions'
+
+export default function EntryForm() {
+  const { submit, isPending } = useMutation(createEntry)
+
+  return (
+    <div>
+      <form action={submit}>
+        <input
+          name='title'
+          type='text'
+          placeholder='Entry title'
+          required
+          disabled={isPending}
+        />
+        <input
+          name='description'
+          type='text'
+          placeholder='Entry  description'
+          required
+          disabled={isPending}
+        />
+        <button>Save</button>
+      </form>
+
+      {isPending && <p>Creating entry</p>}
+    </div>
+  )
+}
+```
+
+You can also reset the state of the form when the action is submitted. To do this, you will need to pass `formRef` and `submit` as `ref` and `action` respectively.
+
+For simplicity, you can just pass `formProps`:
+
+```tsx filename="entry-form.tsx"
+'use client'
+
+import { useMutation } from 'http-react'
+
+import { createEntry } from '@/actions'
+
+export default function EntryForm() {
+  const { isPending, formProps } = useMutation(createEntry, {
+    onSubmit: 'reset' // You can also pass a function that will receive the action payload
+  })
+
+  return (
+    <div>
+      <form {...formProps}>
+        <input
+          name='title'
+          type='text'
+          placeholder='Entry title'
+          required
+          disabled={isPending}
+        />
+        <input
+          name='description'
+          type='text'
+          placeholder='Entry  description'
+          required
+          disabled={isPending}
+        />
+        <button>Save</button>
+      </form>
+
+      {isPending && <p>Creating entry</p>}
+    </div>
+  )
+}
+```
+
+### Explicit action params
+
+If you want to set the params directly in the `useAction` or `useMutation` calls, pass them in the `params` prop:
+
+```ts filename="actions.ts"
+'use server'
+
+import { actionData } from 'http-react'
+
+import db from './db'
+
+type Entry = {
+  title: string
+  description: string
+}
+
+// Notice that we use a single argument instead of a list of arguments
+export async function createEntry({ title, description }: Entry) {
+  // Some db work
+  const newEntry = await db.create({ title, description })
+
+  return actionData(newEntry)
+}
+```
+
+Pass your new entry data in the `params` prop:
+
+```jsx filename="entry-form.tsx"
+'use client'
+
+import { useMutation } from 'http-react'
+
+import { createEntry } from '@/actions'
+
+export default function EntryForm() {
+  const [newEntry, setNewEntry] = useState({
+    title: '',
+    description: ''
+  })
+
+  const { isPending, refresh } = useMutation(createEntry, {
+    params: newEntry, // If types doesn't match we'll get a TypeScript error
+    onResolve() {
+      // Reseting the state
+      setNewEntry({
+        title: '',
+        description: ''
+      })
+    }
+  })
+
+  return (
+    <div>
+      {/* Submiting the form will instead revalidate the
+          request without sending its FormData value as argument */}
+      <form action={refresh}>
+        <input
+          name='title'
+          type='text'
+          placeholder='Entry title'
+          required
+          disabled={isPending}
+          // State-managed
+          value={newEntry.title}
+          onChange={(e) => {
+            setNewEntry({
+              ...newEntry,
+              title: e.target.value
+            })
+          }}
+        />
+        <input
+          name='description'
+          type='text'
+          placeholder='Entry  description'
+          required
+          disabled={isPending}
+          // State-managed
+          value={newEntry.description}
+          onChange={(e) => {
+            setNewEntry({
+              ...newEntry,
+              description: e.target.value
+            })
+          }}
+        />
+        <button>Save</button>
+      </form>
+
+      {isPending && <p>Creating entry</p>}
+    </div>
+  )
+}
+```

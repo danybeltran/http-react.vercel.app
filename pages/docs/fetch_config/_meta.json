@@ -1,5 +1,5 @@
 {
   "index": "FetchConfig",
-  "defaults": "Defaults",
-  "query_and_params": "Query and Params"
+  "defaults": "Fallback data",
+  "query_and_params": "searchParams and params"
 }

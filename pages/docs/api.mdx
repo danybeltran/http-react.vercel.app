@@ -3,23 +3,23 @@ import { Callout } from 'nextra-theme-docs'
 # Request config
 
 <Callout>
-  This documentation covers the configuration specific to `http-react`, not the
-  [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). If
-  you want to learn more about it, check out [Using the Fetch
+  This page covers the API specific to `http-react`, not the [Fetch
+  API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). If you want
+  to learn more about it, check out [Using the Fetch
   API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)
 </Callout>
 
-`useFetch` returns an object with information about the request:
+`useFetch` returns an object with this information about the request:
 
 - `data`: The response data. While data is loading, the returned value will be either the last resolved value (if it exists) or the `default` passed to `useFetch`
 - `config`: The configuration used to send the request
 - `id`: The id of the request
-- `loading`: The loading state of the request
-- `reFetch`: A function to revalidate and send the request again (this won't work if the request hasn't completed yet)
+- `isPending` | `isLoading`: The loading state of the request
+- `refresh`: A function to revalidate and send the request again (this won't work if the request hasn't completed yet)
 - `response`: The response object
 - `responseTime`: The time it took to complete the request (in miliseconds)
 - `online`: If the devices was connected or disconected from the internet (web)
-- `mutate`: A function (a state setter) to mutate data localy (optimistic UI)
+- `mutate`: A function (a state setter) to mutate data locally (optimistic UI)
 - `fetcher`: An object with diferent methods (`get`, `post`, `delete`, etc) that lets you fetch data imperatively using the configuration passed to `useFetch` (similar to `Axios`)
 - `error`: The error state of the request
 - `code`: The response status code
@@ -34,10 +34,7 @@ import { Callout } from 'nextra-theme-docs'
 <Callout>
   If props passed to `useFetch` change while a request is loading, the current
   request will be cancelled and a new request with the last props will be sent
-  (data dependency). This can be disabled by passing `cancelOnChange: false`,
-  however, this is not recommended because it can lead to inconsistencies
-  between state and the configuration sent in the request (for example, if props
-  change while the request is loading, no new request will be sent)
+  (data dependency). However, this is not the case with `server actions`
 </Callout>
 
 By passing additional configuration to `useFetch`, you can configure how data is fetched or decide what to do when certain events happen.

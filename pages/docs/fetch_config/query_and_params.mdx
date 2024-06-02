@@ -1,24 +1,20 @@
 import { Callout } from 'nextra-theme-docs'
 
-# Query and Params
+# searchParams and params
 
 You can set global params and global URL search params. For example:
 
-```tsx filename="components/profile.jsx"
+```tsx filename="components/profile.tsx"
 export default function Profile() {
-  const { loading, data } = useFetch('/[userId]/profile')
-
-  if (loading) return <p>Loading profile</p>
+  const { data } = useFetch('/[userId]/profile')
 
   return <div>Hello, {data.name}</div>
 }
 ```
 
-```tsx filename="components/messages.jsx"
+```tsx filename="components/messages.tsx"
 export default function Messages() {
-  const { loading, data } = useFetch('/[userId]/messages')
-
-  if (loading) return <p>Loading messages</p>
+  const { data } = useFetch('/[userId]/messages')
 
   return <div>{data.length} messages</div>
 }
@@ -40,7 +36,7 @@ export default function App() {
         userId: 'some-user-id'
       }}
       query={{
-        date: '2023-01-23'
+        date: '2024-01-23'
       }}
     >
       <Profile />
@@ -49,6 +45,11 @@ export default function App() {
   )
 }
 ```
+
+Now, the url string will be:
+
+- `/[userId]/profile` -> `/some-user-id/profile?date=2024-01-23`
+- `/[userId]/messages` -> `/some-user-id/messages?date=2024-01-23`
 
 <Callout type="info">
 Learn more about [`params`](/docs/api#params)
