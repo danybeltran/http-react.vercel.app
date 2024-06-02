@@ -9,6 +9,8 @@ This is a list of the hooks available in `http-react`
 Returns a `Blob` of the request
 
 ```jsx
+import { useBlob } from 'http-react'
+
 function App() {
   const { data } = useBlob('/logo.png', { objectURL: true })
 
@@ -456,7 +458,7 @@ function App() {
 
 ### `serialize`
 
-Returns a JSON version of the input
+Returns a serialized string of the input
 
 ```js
 import { serialize } from 'http-react'

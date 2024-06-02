@@ -1,6 +1,18 @@
-const withNextra = require('nextra')({
-  theme: 'nextra-theme-docs',
-  themeConfig: './theme.config.tsx',
-})
+const withNextra = require('nextra')(
+  /**
+   * @type { import("next").Config }
+   */
+  {
+    theme: 'nextra-theme-docs',
+    themeConfig: './theme.config.tsx',
+    transpilePackages: ['geist']
+  }
+)
 
-module.exports = withNextra()
+const nextraConfig = withNextra()
+
+module.exports = {
+  ...nextraConfig,
+
+  transpilePackages: ['geist']
+}

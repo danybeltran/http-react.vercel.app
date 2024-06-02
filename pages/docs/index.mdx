@@ -1,6 +1,5 @@
 import { Callout } from 'nextra-theme-docs'
 
-
 # Getting started
 
 ### Installation
@@ -12,7 +11,8 @@ yarn add http-react
 ```
 
 Or with npm
-```
+
+```bash copy
 npm install --save http-react
 ```
 
@@ -37,8 +37,9 @@ import axios from 'axios'
 const fetcher = (url, config) => axios(url, config)
 ```
 
-<Callout type="info">
-Your `fetcher` function must return an object with the `data` and `status` properties. You can replace `data` with a `json` method that returns the data
+<Callout type='info'>
+  Your `fetcher` function must return an object with the `data` and `status`
+  properties. You can replace `data` with a `json` method that returns the data
 </Callout>
 
 You can start using `useFetch` right away:
@@ -47,12 +48,12 @@ You can start using `useFetch` right away:
 import useFetch from 'http-react'
 
 export default function App() {
-  const { data, loading, error, responseTime } = useFetch('/api/user-info', {
-    refresh: '30 sec',
+  const { data, isPending, error, responseTime } = useFetch('/api/user-info', {
+    refresh: '30 sec', // Refresh profile every 30 seconds
     fetcher
   })
 
-  if (loading) return <p>Loading</p>
+  if (isPending) return <p>Loading</p>
 
   if (error) return <p>An error ocurred</p>
 
@@ -63,17 +64,19 @@ export default function App() {
     </div>
   )
 }
-
 ```
 
-The first argument passed to `useFetch` is the input of the request, a url. By default, this will be used along with the `method` to create a unique id to do things like deduplication and sync the state of a request between hook calls. (in this example, the id will be `GET /api/user-info`)
+The first argument passed to `useFetch` is the input of the request; it can be a URL or a `Request` object.
 
-The second argument is the request configuration. This configuration accepts everything that `fetch` accetps and more. In this example, `refresh` tells `useFetch` to revalidate again 30 seconds after the initial and any subsequent request completes. `refresh` is not part of the native `fetch` configuration, it's one of the many features provided by `http-react`.
+By default, the URL this will be used along with the `method` to create a unique id to do things like deduplication and sync the state of a request between hook calls. (in this example, the id will be `GET /api/user-info`)
+
+The second argument is the request configuration. This configuration accepts everything that `fetch` accepts and more. In this example, `refresh` tells `useFetch` to revalidate again 30 seconds after the initial and any subsequent request completes. `refresh` is not part of the native `fetch` configuration, it's one of the many features provided by `http-react`.
 
 ### Optional
+
 Wrap your app with the `FetchConfig` component.
 
-You can use it to set global configurations like cache, headers, default values for certain requests, configure which requests will run with [`Suspense`](https://beta.reactjs.org/reference/react/Suspense), etc. It can also be used for SSR and works inside [Server Components](https://beta.nextjs.org/docs/rendering/server-and-client-components)
+You can use it to set global configurations like cache, headers, default (fallback) values for certain requests, configure which requests will trigger [`Suspense`](https://beta.reactjs.org/reference/react/Suspense), etc. It can also be used for SSR and works inside [Server Components](https://beta.nextjs.org/docs/rendering/server-and-client-components)
 
 ```jsx
 import { FetchConfig } from 'http-react'
@@ -84,6 +87,9 @@ export default function App() {
       baseUrl='/api'
       refresh={30}
       headers={{ Authorization: 'Token' }}
+      value={{
+        'GET /todos': [] // fallback for `useFetch('/todos')`
+      }}
     >
       <div>
         <h2>My app</h2>

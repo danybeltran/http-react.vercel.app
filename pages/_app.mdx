@@ -1,0 +1,23 @@
+import 'styles/globals.css'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+
+export default function App({ Component, pageProps }) {
+
+return (
+
+<main className={GeistSans.className}>
+  <style
+    dangerouslySetInnerHTML={{
+      __html: `
+      code {
+        font-family: ${GeistMono.style.fontFamily};
+        font-feature-settings: "liga" 0;
+        font-variant-ligatures: none;
+      }
+    `
+    }}
+  ></style>
+  <Component {...pageProps} />
+</main>
+) }

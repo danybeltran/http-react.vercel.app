@@ -2,20 +2,26 @@ import { Callout } from 'nextra-theme-docs'
 
 # `FetchConfig`
 
-The `FetchConfig` component is used to set global configurations that will be used by `useFetch`, like `SSR`, `default`, an more.
-With this component, you can set configuration for everything that can be sent in a request except for `body`, as this should be sent per request.
+The `FetchConfig` component is used to set global properties that will be used by `useFetch` in any descendant component, like `SSR`, `value` (fallback), an more.
+
+Keep in mind that you can still configure individual requests.
 
 Wrap your app with the `FetchConfig` component:
 
-```jsx {1,5,9}
+```jsx {1,5,16}
 import { FetchConfig } from 'http-react'
 
-export default function App() {
+export default function App({ children }) {
   return (
-    <FetchConfig headers={{ Authorization: 'Token etc' }}>
-      <div>
-        <h2>My App</h2>
-      </div>
+    <FetchConfig
+      headers={{
+        Authorization: 'my-token'
+      }}
+      value={{
+        'GET /todos': []
+      }}
+    >
+      {children}
     </FetchConfig>
   )
 }
@@ -26,8 +32,8 @@ With the configuration above, every `useFetch` call under that react tree will s
 ```jsx {10-13,18-21}
 import useFetch, { FetchConfig } from 'http-react'
 
-import LegacyApiComponent from '@components/legacy'
-import NewApiComponent from '@components/new'
+import LegacyComponent from '@components/legacy'
+import NewComponent from '@components/new'
 
 export default function App() {
   return (
@@ -38,7 +44,7 @@ export default function App() {
           Authorization: 'Old token'
         }}
       >
-        <LegacyApiComponent />
+        <LegacyComponent />
       </FetchConfig>
       <FetchConfig
         baseUrl='/api/v2'
@@ -46,52 +52,83 @@ export default function App() {
           Authorization: 'New token'
         }}
       >
-        <NewApiComponent />
+        <NewComponent />
       </FetchConfig>
     </div>
   )
 }
 ```
 
-You can set other configurations. For example, you can use `storage`, provided by `atomic-state` as caching:
+You can also change how data is stored. For example, by using `storage`, provided by `atomic-state`:
 
 ```jsx
 import { FetchConfig } from 'http-react'
 import { storage } from 'atomic-state'
 
-export default function App() {
+export default function App({ children }) {
   return (
     <div>
-      <FetchConfig
-        baseUrl='/api/v2'
-        headers={{
-          Authorization: 'New token'
-        }}
-        cacheProvider={storage}
-      >
-        <h2>My App</h2>
+      <FetchConfig baseUrl='/api' cacheProvider={storage}>
+        {children}
       </FetchConfig>
     </div>
   )
 }
 ```
 
-You can also do thins like send requests again when the window is focused or send requests again only if props changed:
+You can also make `useFetch` revalidate when the window is focused again:
 
 ```jsx
 import { FetchConfig } from 'http-react'
 
-export default function App() {
+export default function App({ children }) {
   return (
     <div>
-      <FetchConfig
-        revalidateOnFocus
-        revalidateOnMount={false}
-        attemptInterval={'2 sec'}
-        refresh={'30 sec'} // Revalidate 30 seconds after each request
-      >
-        <h2>My App</h2>
+      <FetchConfig revalidateOnFocus revalidateOnMount={false}>
+        {children}
       </FetchConfig>
+    </div>
+  )
+}
+```
+
+If you are using server components you can pass promises as fallback values (keep in mind that this works **only** in server components):
+
+```jsx
+import { FetchConfig } from 'http-react'
+
+function getTodos() {
+  return fetch('https://api.com/todos').then((res) => res.json())
+}
+
+export function MyServerComponent({ children }) {
+  return (
+    <FetchConfig
+      value={{
+        todos: getTodos() // No await needed!
+      }}
+    >
+      <div>{children}</div>
+    </FetchConfig>
+  )
+}
+```
+
+Then in your client component:
+
+```tsx
+'use client'
+
+import useFetch from 'http-react'
+
+export default function Todos() {
+  const { data } = useFetch('/todos', {
+    id: 'todos' // This will replace 'GET /todos' for 'todos' as the request id
+  })
+
+  return (
+    <div>
+      <h2>Total todos: {data.length}</h2>
     </div>
   )
 }

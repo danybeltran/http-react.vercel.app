@@ -3,25 +3,25 @@
   <span>React hooks for data fetching</span>
 </div>
 
-Http React is a React hooks library for data fetching. It's built on top of the native `Fetch` API.
+Http React is a React hooks library for data fetching that's built on top of the native `Fetch` API.
 
 ### Overview
 
 With one hook call, you get all the information about a request that you can use to build UIs that are consistent and performant:
 
-```jsx
+```tsx
 import useFetch from 'http-react'
 
-// This is the default fetcher
+// This is the default fetcher. If you are using fetch, you don't need one
 const fetcher = (url, config) => fetch(url, config)
 
 export default function App() {
-  const { data, loading, error, responseTime } = useFetch('/api/user-info', {
+  const { data, isPending, error, responseTime } = useFetch('/api/user-info', {
     refresh: '30 sec',
     fetcher
   })
 
-  if (loading) return <p>Loading</p>
+  if (isPending) return <p>Loading</p>
 
   if (error) return <p>An error ocurred</p>
 
@@ -34,9 +34,10 @@ export default function App() {
 }
 ```
 
-It supports many features that are necessary in modern applications, while giving developers full control over the request configuration:
+It supports many features out of the box, while giving developers full control over the request configuration:
 
 - Server-Side Rendering
+- Server actions
 - React Native
 - Request deduplication
 - Suspense
